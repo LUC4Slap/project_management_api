@@ -21,9 +21,12 @@ class ApplicationController < ActionController::API
     return nil unless token
 
     decoded_token = JWT.decode(token, Rails.application.secrets.secret_key_base, true, { algorithm: 'HS256' }).first
-    debugger
+    # debugger
+    unless decoded_token['exp']
+      raise JWT::ExpiredSignature, 'Token expirado'
+    end
     # Verificar se o token expirou
-    if decoded_token['exp'] && decoded_token['exp'] < Time.now.to_i
+    if decoded_token['exp'] != nil && decoded_token['exp'] < Time.now.to_i
       raise JWT::ExpiredSignature, 'Token expirado'
     end
 
